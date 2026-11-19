@@ -1,0 +1,6 @@
+gradio
+reportlab
+ctranslate2
+sentencepiece
+duckduckgo-search
+playwright

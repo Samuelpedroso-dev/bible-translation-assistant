@@ -1,0 +1,7 @@
+__pycache__/
+modelos/
+dados/bible-corpus
+dados/diario.jsonl
+dados/estado.json
+saida/*
+!saida/.gitkeep
