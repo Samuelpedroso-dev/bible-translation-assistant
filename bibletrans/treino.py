@@ -26,7 +26,7 @@ def chrf(ps):
         b = [p[0] for p in ps[i:i+16]]
         x = tok(b, return_tensors="pt", padding=True, truncation=True, max_length=128).to(dev_)
         with torch.no_grad():
-            y = mod.generate(**x, forced_bos_token_id=tok.convert_tokens_to_ids(cod), max_new_tokens=128, num_beams=4)
+            y = mod.generate(**x, forced_bos_token_id=tok.convert_tokens_to_ids(cod), max_new_tokens=128, num_beams=4, max_length=None)
         hip += tok.batch_decode(y, skip_special_tokens=True)
     return sacrebleu.corpus_chrf(hip, [[p[1] for p in ps]], word_order=2).score
 mod.to(dev_)
@@ -42,5 +42,15 @@ depois = chrf(teste[:100]); print("chrF++ depois", depois)
 os.makedirs("modelo_hf", exist_ok=True); mod.save_pretrained("modelo_hf"); tok.save_pretrained("modelo_hf")
 json.dump({"idioma": corp, "codigo": cod, "chrf_antes": antes, "chrf_depois": depois, "pares_treino": len(treino)}, open("modelo_hf/relatorio.json", "w"))
 subprocess.run("pip -q install ctranslate2 && ct2-transformers-converter --model modelo_hf --output_dir modelo_ct2 --quantization int8 --force", shell=True, check=True)
-subprocess.run("cp modelo_hf/relatorio.json modelo_hf/sentencepiece.bpe.model modelo_ct2/ && zip -rq modelo_%s.zip modelo_ct2" % cod, shell=True, check=True)
+from huggingface_hub import hf_hub_download
+import shutil
+shutil.copy(hf_hub_download(M, "sentencepiece.bpe.model"), "modelo_ct2/sentencepiece.bpe.model")
+shutil.copy("modelo_hf/relatorio.json", "modelo_ct2/relatorio.json")
+import ctranslate2, sentencepiece as spm
+ct = ctranslate2.Translator("modelo_ct2", device="cpu"); sp = spm.SentencePieceProcessor("modelo_ct2/sentencepiece.bpe.model")
+amostra = ["In the beginning God created the heavens and the earth.", "Jesus wept."]
+r = ct.translate_batch([["eng_Latn"] + sp.encode(a, out_type=str) + ["</s>"] for a in amostra], target_prefix=[[cod]] * 2, beam_size=4, max_decoding_length=200)
+for a, x in zip(amostra, r):
+    print("TESTE CPU", a, "=>", sp.decode([t for t in x.hypotheses[0] if t != cod]))
+subprocess.run("zip -rq modelo_%s.zip modelo_ct2" % cod, shell=True, check=True)
 print("PRONTO modelo_%s.zip" % cod)
