@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/simbolo.png" width="110" alt="Jerusalem cross">
+<img src="docs/simbolo.svg" width="110" alt="Jerusalem cross">
 
 # Bible Translation Assistant
 
@@ -32,7 +32,7 @@ In the chat type `prepare dinka` style commands in Portuguese, starting with `aj
 Dinka, NLLB 600M fine tuned on the New Testament: chrF++ 18.0 before and 48.8 after (different test slices, comparison is indicative). Kabyle baseline 31.2 before training.
 
 ## Sources and licensing
-Parallel data from the christos-c bible-corpus. English source text is the World English Bible (public domain), because the ESV does not allow translation into other languages without permission. The cross image in `assets` must be replaced by a licensed or original version before any wide publication.
+Parallel data from the christos-c bible-corpus. English source text is the World English Bible (public domain), because the ESV does not allow translation into other languages without permission. The Jerusalem cross used by the interface and the PDF cover is an original vector drawing.
 
 ## Responsible use
 Output is a draft, not a Bible translation. It must be reviewed and approved by native speakers and qualified translators before any use.

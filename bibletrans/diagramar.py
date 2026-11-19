@@ -10,6 +10,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Paragraph, Spacer, Table, TableStyle, Image, PageBreak, NextPageTemplate, KeepTogether
 from xml.sax.saxutils import escape
 from .livros import nome
+from .simbolo import Cruz
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 F = os.path.join(RAIZ, "fonts")
 pdfmetrics.registerFont(TTFont("Serif", os.path.join(F, "DejaVuSerif.ttf")))
@@ -46,9 +47,7 @@ def pdf(saida, cod, lang_nome, esq, dir_, titulo_esq="English (WEB)", titulo_dir
     fc = Frame(16*mm, 20*mm, W-32*mm, H-40*mm, id="c"); fb = Frame(16*mm, 20*mm, W-32*mm, H-42*mm, id="b")
     doc.addPageTemplates([PageTemplate("capa", [fc], onPage=capa), PageTemplate("corpo", [fb], onPage=corpo)])
     el = [Spacer(1, 30*mm)]
-    if os.path.exists(SIMBOLO):
-        im = Image(SIMBOLO); r = im.imageWidth / im.imageHeight; h = 70*mm
-        im.drawHeight = h; im.drawWidth = h*r; im.hAlign = "CENTER"; el.append(im)
+    el.append(Cruz(70*mm))
     el += [Spacer(1, 12*mm), Paragraph(nome(cod, "pt"), S["tit"]), Spacer(1, 4*mm),
            Paragraph("%s  ·  %s" % (titulo_esq, titulo_dir), S["sub"]), Spacer(1, 40*mm),
            Paragraph("Rascunho produzido por modelo de tradução automática. Não é uma tradução da Bíblia. "

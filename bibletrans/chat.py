@@ -1,6 +1,6 @@
 """Interpretador de comandos do chat. Regras simples, sem chave de API."""
 import os, re, json
-from . import corpus, colab, diario, estado, pesquisa, traduzir as T, diagramar
+from . import corpus, colab, diario, estado, pesquisa, modelos, traduzir as T, diagramar
 from .livros import achar, nome, NT
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SAIDA = os.path.join(RAIZ, "saida")
@@ -22,9 +22,10 @@ def _lingua(msg):
         if r:
             return r
     return None
-def responder(msg):
-    """devolve (texto, lista de arquivos)"""
+def responder(msg, modelo=None, feixes=4):
+    """devolve (texto, lista de arquivos). modelo e o id do modelo escolhido na interface"""
     m = msg.strip(); l = m.lower()
+    mod = modelos.achar(modelo) if modelo else None
     if l in ("ajuda", "help", "oi", "olá", "ola"):
         return AJUDA, []
     if l.startswith("idiomas"):
@@ -45,7 +46,7 @@ def responder(msg):
     if l.startswith("relat"):
         p = diario.relatorio_md()
         return "Relatório gerado.", [p]
-    c = _lingua(l)
+    c = _lingua(l) or (mod["idioma"] if mod else None)
     if l.startswith("preparar"):
         if not c: return "Diga o idioma, por exemplo preparar dinka.", []
         d = corpus.ler(c); en = corpus.ler("English-WEB")
@@ -75,7 +76,7 @@ def responder(msg):
         cod = corpus.NLLB[c]
         if l.startswith("traduzir texto"):
             txt = m.split(":", 1)[-1].strip()
-            return T.traduzir(cod, [txt])[0], []
+            return T.traduzir(cod, [txt], feixes=feixes)[0], []
         alvo = None
         for tok in re.findall(r"[\wçãéíóúêô]+(?: \d)?", m[8:]):
             alvo = achar(tok) or alvo
@@ -84,11 +85,17 @@ def responder(msg):
         if not alvo: return "Não reconheci o livro.", []
         if alvo in NT: return "Esse livro do Novo Testamento já existe no idioma. Peça um livro do Antigo Testamento.", []
         en = corpus.ler("English-WEB"); ks = sorted(k for k in en if k[0] == alvo)
-        out = T.traduzir(cod, [en[k] for k in ks])
+        out = T.traduzir(cod, [en[k] for k in ks], feixes=feixes)
         d = dict(zip(ks, out))
         tsv = os.path.join(SAIDA, "rascunho_%s_%s.tsv" % (alvo, cod))
         open(tsv, "w", encoding="utf-8").write("\n".join("%s.%d.%d\t%s\t%s" % (k[0], k[1], k[2], en[k], d[k]) for k in ks))
         pdf = diagramar.pdf(os.path.join(SAIDA, "%s_%s.pdf" % (alvo, cod)), alvo, c, en, d, "English (WEB)", c.split("-")[0])
         diario.log("rascunho", livro=alvo, idioma=c, versiculos=len(ks))
         return "Rascunho de %s pronto, %d versículos. Envie aos revisores nativos." % (nome(alvo), len(ks)), [pdf, tsv]
-    return "Não entendi. Digite ajuda.", []
+    if mod:
+        if mod["status"] == "nao_treinado":
+            return "O modelo %s ainda não foi treinado. Digite treinar para gerar o caderno do Colab." % mod["nome"], []
+        if mod["status"] != "aprovado":
+            return "O modelo %s está instalado mas ainda não foi aprovado. Confira os números e digite aprovar." % mod["nome"], []
+        return T.traduzir(mod["codigo"], [m], feixes=feixes)[0], []
+    return "Não entendi. Digite ajuda ou escolha um modelo para traduzir texto livre.", []
