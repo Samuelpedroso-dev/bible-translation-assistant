@@ -22,6 +22,10 @@ pip install -r requirements.txt
 git clone https://github.com/christos-c/bible-corpus dados/bible-corpus
 python app.py
 ```
+Open http://127.0.0.1:8000. The same screen is also published as a live page, connected to your local engine when it is running.
+
+Live page https://samuelpedroso-dev.github.io/bible-translation-assistant/
+```
 In the chat type `prepare dinka` style commands in Portuguese, starting with `ajuda`. Train with `treinar dinka`, open the generated notebook on Colab, download the model, unzip into `modelos/dik_Latn`, then `importar modelo dinka`, `aprovar dinka` and `traduzir Rute para dinka`.
 
 ## First results
