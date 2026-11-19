@@ -1,19 +1,36 @@
-# Tradutor Bíblico Assistido
+<div align="center">
 
-Motor de rascunho de tradução bíblica para idiomas que só têm o Novo Testamento. Base é o NLLB 200 da Meta, livre e gratuito, ajustado com o Novo Testamento do idioma alinhado ao inglês WEB (domínio público). Roda na sua máquina sem chave de API.
+<img src="assets/simbolo.png" width="110" alt="Jerusalem cross">
 
-Todo texto gerado é rascunho. Nada é tradução final sem revisão de falantes nativos e tradutores qualificados.
+# Bible Translation Assistant
 
-## Como usar
-1. pip install -r requirements.txt
-2. git clone https://github.com/christos-c/bible-corpus dados/bible-corpus
-3. python app.py e abra o endereço mostrado
-4. No chat digite preparar dinka, depois treinar dinka. Abra o caderno gerado no Colab com GPU T4 e execute tudo
-5. Baixe o zip, descompacte em modelos/dik_Latn, digite importar modelo dinka, confira os números, digite aprovar dinka
-6. Digite traduzir Rute para dinka. Saem um PDF paralelo e um TSV em saida
+**Machine drafts of Scripture for languages that only have the New Testament.**
+Built on Meta's NLLB. Free, local, no API key. Every draft requires validation by native speakers.
 
-## Limites
-O NLLB é um tradutor, não um agente. A pesquisa vem de um módulo de busca simples. Treino precisa de GPU, a tradução roda na CPU. O texto inglês de origem é a WEB, pois a ESV não permite tradução para outros idiomas sem licença.
+</div>
 
-## Símbolo
-assets/simbolo.png é a cruz de Jerusalém enviada pelo autor. A imagem veio de banco de imagens com marca d'água e precisa de licença ou substituição antes de qualquer publicação.
+## What it does
+- Chat interface that prepares a language, trains a model, and drafts books after your approval.
+- Parallel PDF typesetting in the style of classic parallel Bibles, source on the left and draft on the right.
+- Training on Google Colab (free T4), inference on your own CPU through CTranslate2.
+- Automatic diary and markdown report, ready to document and publish.
+- Browser agent layer (Playwright and an optional local LLM) for research.
+
+## Quick start
+```
+pip install -r requirements.txt
+git clone https://github.com/christos-c/bible-corpus dados/bible-corpus
+python app.py
+```
+In the chat type `prepare dinka` style commands in Portuguese, starting with `ajuda`. Train with `treinar dinka`, open the generated notebook on Colab, download the model, unzip into `modelos/dik_Latn`, then `importar modelo dinka`, `aprovar dinka` and `traduzir Rute para dinka`.
+
+## First results
+Dinka, NLLB 600M fine tuned on the New Testament: chrF++ 18.0 before and 48.8 after (different test slices, comparison is indicative). Kabyle baseline 31.2 before training.
+
+## Sources and licensing
+Parallel data from the christos-c bible-corpus. English source text is the World English Bible (public domain), because the ESV does not allow translation into other languages without permission. The cross image in `assets` must be replaced by a licensed or original version before any wide publication.
+
+## Responsible use
+Output is a draft, not a Bible translation. It must be reviewed and approved by native speakers and qualified translators before any use.
+
+See [ROADMAP.md](ROADMAP.md).
