@@ -9,7 +9,7 @@ def listar():
         pasta = T.pasta_modelo(m["codigo"]); inst = os.path.exists(os.path.join(pasta, "model.bin"))
         rel = T.relatorio(m["codigo"]) or {}
         st = "aprovado" if inst and m["idioma"] in ap else ("instalado" if inst else "nao_treinado")
-        out.append(dict(m, status=st, chrf=rel.get("chrf_depois")))
+        out.append(dict(m, status=st, chrf=rel.get("chrf_depois") or m.get("chrf_depois")))
     return out
 def achar(id_):
     return next((m for m in listar() if m["id"] == id_), None)

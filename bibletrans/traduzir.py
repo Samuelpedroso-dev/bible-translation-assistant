@@ -2,7 +2,9 @@
 import os, json
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def pasta_modelo(cod):
-    return os.path.join(RAIZ, "modelos", cod)
+    p = os.path.join(RAIZ, "modelos", cod)
+    sub = os.path.join(p, "modelo_ct2")
+    return sub if os.path.exists(os.path.join(sub, "model.bin")) else p
 def carregar(cod):
     import ctranslate2, sentencepiece as spm
     p = pasta_modelo(cod)

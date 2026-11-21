@@ -74,7 +74,7 @@ textarea{width:100%;background:transparent;border:0;outline:0;color:var(--txt);f
 .op span{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}
 .op.sel{outline:1px solid var(--gold)}
 .tag{float:right;font-size:11px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mut);margin-left:8px}
-.tag.ap{color:#8fd19e;border-color:#3f6b4a}.tag.in{color:var(--gold);border-color:#6b5a2e}
+.tag.ap{color:#8fd19e;border-color:#3f6b4a}.tag.in{color:var(--gold);border-color:#6b5a2e}.tag.te{color:#9fb7e8;border-color:#3e4f73}
 .nota{text-align:center;color:var(--mut);font-size:12px;padding:8px 0 0}
 .main.vazio .nota{display:none}
 /* paineis */
@@ -150,7 +150,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;","
 /* conexao */
 async function ping(){try{await api("/api/status");ONLINE=true}catch(e){ONLINE=false}
  $("#st").textContent=ONLINE?"motor conectado":"motor desligado";$("#st").className="pill"+(ONLINE?" ok":"");
- if(ONLINE){await Promise.all([carregarLista(),carregarModelos()])}else{LISTA=[];MODELOS=[];renderLista();renderModelo()}}
+ if(ONLINE){await Promise.all([carregarLista(),carregarModelos()])}else{LISTA=[];try{MODELOS=(await (await fetch("modelos.json")).json()).map(m=>Object.assign({},m,{status:"em_teste",chrf:m.chrf_depois}))}catch(e){MODELOS=[]}renderLista();renderModelo()}}
 /* lista de conversas */
 async function carregarLista(){try{LISTA=await api("/api/conversas")}catch(e){LISTA=[]}renderLista()}
 function renderLista(){
@@ -207,7 +207,7 @@ async function enviar(){
 async function carregarModelos(){try{MODELOS=await api("/api/modelos")}catch(e){MODELOS=[]}
  if(MODELO&&!MODELOS.find(m=>m.id===MODELO)){MODELO="";LS.s("modelo","")}renderModelo()}
 function renderModelo(){const m=MODELOS.find(x=>x.id===MODELO);$("#modNome").textContent=m?m.nome:"Sem modelo"}
-const ROT={aprovado:["aprovado","ap"],instalado:["instalado","in"],nao_treinado:["não treinado",""]};
+const ROT={aprovado:["aprovado","ap"],instalado:["instalado","in"],nao_treinado:["não instalado",""],em_teste:["em teste","te"]};
 function pop(){const p=$("#pop");
  let h='<button class="op'+(MODELO===""?" sel":"")+'" data-id=""><b>Sem modelo</b><span>Só comandos. Texto livre não é traduzido.</span></button>';
  MODELOS.forEach(m=>{const ok=m.status!=="nao_treinado";const r=ROT[m.status];
@@ -227,7 +227,7 @@ async function painel(nome){
  if(!ONLINE){pc.innerHTML='<h1>'+nome[0].toUpperCase()+nome.slice(1)+'</h1><div class="card">O motor está desligado. Rode python app.py na sua máquina.</div>';return}
  try{
  if(nome==="idiomas"){const d=await api("/api/idiomas");pc.innerHTML="<h1>Idiomas</h1>"+d.map(i=>'<div class="card"><b>'+esc(i.idioma)+'</b> <span>'+i.codigo+' · '+i.versiculos+' versículos no corpus</span><div class="acoes"><button class="btn" data-c="preparar '+i.idioma.split("-")[0].toLowerCase()+'">Preparar</button><button class="btn" data-c="treinar '+i.idioma.split("-")[0].toLowerCase()+'">Gerar caderno do Colab</button><button class="btn" data-c="importar modelo '+i.idioma.split("-")[0].toLowerCase()+'">Importar modelo</button><button class="btn" data-c="aprovar '+i.idioma.split("-")[0].toLowerCase()+'">'+(i.aprovado?"Aprovado":"Aprovar")+'</button></div></div>').join("")}
- if(nome==="modelos"){const d=await api("/api/modelos");pc.innerHTML="<h1>Modelos</h1>"+d.map(m=>'<div class="card"><b>'+esc(m.nome)+'</b> <span>'+esc(m.base)+'</span><div style="margin-top:6px"><span>'+esc(m.descricao)+'</span></div><div style="margin-top:6px"><span>Estado '+ROT[m.status][0]+(m.chrf?' · chrF++ '+m.chrf.toFixed(1):'')+'</span></div><div class="acoes"><button class="btn" data-m="'+m.id+'"'+(m.status==="nao_treinado"?" disabled":"")+'>Usar este modelo</button></div></div>').join("")}
+ if(nome==="modelos"){const d=ONLINE?await api("/api/modelos"):MODELOS;pc.innerHTML="<h1>Modelos</h1>"+d.map(m=>'<div class="card"><b>'+esc(m.nome)+'</b> <span>'+esc(m.base)+'</span><div style="margin-top:6px"><span>'+esc(m.descricao)+'</span></div><div style="margin-top:6px"><span>Estado '+ROT[m.status][0]+(m.chrf?' · chrF++ '+m.chrf.toFixed(1):'')+'</span></div><div class="acoes"><button class="btn" data-m="'+m.id+'"'+(m.status==="nao_treinado"||m.status==="em_teste"?" disabled":"")+'>Usar este modelo</button></div></div>').join("")}
  if(nome==="arquivos"){const d=await api("/api/arquivos");pc.innerHTML="<h1>Arquivos</h1>"+(d.length?d.map(a=>'<div class="lin"><a style="color:var(--txt)" href="'+API+'/api/arquivo/'+encodeURIComponent(a.nome)+'">'+esc(a.nome)+'</a><span>'+byte(a.tamanho)+' · '+new Date(a.quando*1000).toLocaleString("pt-BR")+'</span></div>').join(""):'<div class="card">Nada gerado ainda. Cadernos do Colab e rascunhos em PDF aparecem aqui.</div>')}
  if(nome==="diario"){const d=await api("/api/diario");pc.innerHTML="<h1>Diário</h1>"+(d.length?d.map(e=>{const {evento,quando,...r}=e;return '<div class="lin"><div><b>'+esc(evento)+'</b><br><span>'+esc(Object.entries(r).map(([k,v])=>k+" "+v).join(" · "))+'</span></div><span>'+new Date(quando).toLocaleString("pt-BR")+'</span></div>'}).join(""):'<div class="card">O diário está vazio.</div>')}
  }catch(e){pc.innerHTML='<div class="card">Não foi possível carregar.</div>'}}

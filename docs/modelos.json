@@ -1,0 +1,5 @@
+[
+ {"id": "verbum-dinka-1", "nome": "Verbum Dinka 1.0", "idioma": "Dinka-NT", "codigo": "dik_Latn", "base": "NLLB 200 600M", "descricao": "Inglês para Dinka, ajustado com o Novo Testamento", "fase": "em teste", "chrf_antes": 18.2, "chrf_depois": 49.5},
+ {"id": "verbum-kabyle-1", "nome": "Verbum Kabyle 1.0", "idioma": "Kabyle-NT", "codigo": "kab_Latn", "base": "NLLB 200 600M", "descricao": "Inglês para Kabyle, ajustado com o Novo Testamento", "fase": "em teste", "chrf_antes": 32.1, "chrf_depois": 37.9},
+ {"id": "verbum-wolof-1", "nome": "Verbum Wolof 1.0", "idioma": "Wolof-NT", "codigo": "wol_Latn", "base": "NLLB 200 600M", "descricao": "Inglês para Wolof, ajustado com o Novo Testamento", "fase": "em teste", "chrf_antes": 36.8, "chrf_depois": 44.6}
+]

@@ -3,8 +3,8 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CORPUS = os.environ.get("BIBLE_CORPUS", os.path.join(RAIZ, "dados", "bible-corpus"))
 PAT = re.compile(r'<seg id="b\.([A-Z0-9]+)\.(\d+)\.(\d+)"[^>]*>(.*?)</seg>', re.S)
 # idiomas do corpus que o NLLB conhece, com o codigo dele
-NLLB = {"Dinka-NT": "dik_Latn", "Kabyle-NT": "kab_Latn"}
-ALIAS = {"dinka": "Dinka-NT", "dik": "Dinka-NT", "kabyle": "Kabyle-NT", "cabila": "Kabyle-NT", "cabila": "Kabyle-NT", "kab": "Kabyle-NT"}
+NLLB = {"Dinka-NT": "dik_Latn", "Kabyle-NT": "kab_Latn", "Wolof-NT": "wol_Latn"}
+ALIAS = {"dinka": "Dinka-NT", "dik": "Dinka-NT", "kabyle": "Kabyle-NT", "cabila": "Kabyle-NT", "cabila": "Kabyle-NT", "kab": "Kabyle-NT", "wolof": "Wolof-NT", "uolofe": "Wolof-NT", "wol": "Wolof-NT"}
 def ler(nome):
     """devolve dict {(livro,cap,ver): texto}"""
     p = os.path.join(CORPUS, "bibles", nome + ".xml")
